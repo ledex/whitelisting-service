@@ -25,7 +25,7 @@ func GetMembers(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	file, err := ioutil.ReadFile("test.json")
+	file, err := ioutil.ReadFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json")
 	if err != nil {
 		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
 		return
@@ -74,7 +74,7 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Adds user to whitelist
-	file, err := ioutil.ReadFile("test.json")
+	file, err := ioutil.ReadFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json")
 	if err != nil {
 		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
 		return
@@ -92,7 +92,7 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 
 	we = append(we, mu)
 	file, _ = json.MarshalIndent(we, "", " ")
-	err = ioutil.WriteFile("test.json", file, 0644)
+	err = ioutil.WriteFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", file, 0644)
 	if err != nil {
 		http.Error(w, "Could note write back file. Check permissions", http.StatusInternalServerError)
 		return
