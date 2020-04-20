@@ -8,12 +8,14 @@
  */
 package swagger
 
+import "github.com/google/uuid"
+
 type Body struct {
 	Username string `json:"username,omitempty"`
 }
 
 type MojangUser struct {
-	Id string `json:"id"`
+	Id uuid.UUID `json:"id"`
 	Name string `json:"name"`
 
 }
