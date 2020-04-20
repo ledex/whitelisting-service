@@ -20,6 +20,6 @@ type MojangUser struct {
 }
 
 type WhitelistEntry struct {
-	Id uuid.UUID `json:"id"`
+	Id uuid.UUID `json:"uuid"`
 	Name string `json:"name"`
 }
