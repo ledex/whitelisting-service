@@ -67,4 +67,11 @@ var routes = Routes{
 		"/members",
 		PostMembers,
 	},
+
+	Route{
+		"GetMembers",
+		strings.ToUpper("Get"),
+		"/members",
+		GetMembers,
+	},
 }

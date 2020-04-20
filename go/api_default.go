@@ -9,15 +9,112 @@
 package swagger
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	http.Error(w, "Not implemented yet", http.StatusNotImplemented)
+}
+
+func GetMembers(w http.ResponseWriter, r *http.Request){
+	if !auth(w,r){
+		return
+	}
+
+	file, err := ioutil.ReadFile("test.json")
+	if err != nil {
+		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
+	w.Write(file)
 }
 
 func PostMembers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+
+	if !auth(w,r){
+		return
+	}
+
+	//Checks if request is valid
+	var b Body
+
+	err := json.NewDecoder(r.Body).Decode(&b)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//Gets user-details from mojang
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", "https://api.mojang.com/users/profiles/minecraft/" + b.Username, nil)
+	req.Header.Set("Accept", "*/*")
+	req.Header.Set("User-Agent", "PostmanRuntime/7.22.0")
+	res, err := client.Do(req)
+
+	if err != nil || res.StatusCode !=http.StatusOK {
+		http.Error(w, "Could not find this username in mojang", http.StatusBadRequest)
+		return
+	}
+
+	var mu MojangUser
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(res.Body)
+
+	err = json.NewDecoder(bytes.NewReader(buf.Bytes())).Decode(&mu)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//Adds user to whitelist
+	file, err := ioutil.ReadFile("test.json")
+	if err != nil {
+		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
+		return
+	}
+
+	var we []MojangUser
+	err = json.NewDecoder(bytes.NewReader(file)).Decode(&we)
+
+	for _, entry := range we {
+		if entry.Id == mu.Id {
+			http.Error(w, "User is already whitelisted", http.StatusOK)
+			return
+		}
+	}
+
+	we = append(we, mu)
+	file, _ = json.MarshalIndent(we, "", " ")
+	err = ioutil.WriteFile("test.json", file, 0644)
+	if err != nil {
+		http.Error(w, "Could note write back file. Check permissions", http.StatusInternalServerError)
+		return
+	}
+
+	result, _ := json.MarshalIndent(mu, "", " ")
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(result)
+
+}
+
+func auth(w http.ResponseWriter, r *http.Request) bool {
+	apiKeys, ok := r.URL.Query()["apiKey"]
+	if !ok || len(apiKeys) != 1 {
+		http.Error(w, "The url-param 'apiKey' was not specified or was specified multiple times.", http.StatusBadRequest)
+		return false
+	}
+	if apiKeys[0] != os.Getenv("globalApiKey"){
+		http.Error(w, "The given 'apiKey' is not valid.", http.StatusUnauthorized)
+		return false
+	}
+
+	return true
 }

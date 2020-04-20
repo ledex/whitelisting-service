@@ -9,6 +9,11 @@
 package swagger
 
 type Body struct {
-
 	Username string `json:"username,omitempty"`
+}
+
+type MojangUser struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+
 }
