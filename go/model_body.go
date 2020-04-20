@@ -15,7 +15,11 @@ type Body struct {
 }
 
 type MojangUser struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+}
+
+type WhitelistEntry struct {
 	Id uuid.UUID `json:"id"`
 	Name string `json:"name"`
-
 }

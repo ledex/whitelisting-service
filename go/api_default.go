@@ -11,6 +11,7 @@ package swagger
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/google/uuid"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -80,17 +81,28 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var we []MojangUser
+	muUuid, err := uuid.Parse(mu.Id)
+	if err != nil {
+		http.Error(w, "Could not parse uuid.", http.StatusInternalServerError)
+		return
+	}
+
+	newWe := WhitelistEntry{
+		Id:   muUuid,
+		Name: mu.Name,
+	}
+
+	var we []WhitelistEntry
 	err = json.NewDecoder(bytes.NewReader(file)).Decode(&we)
 
 	for _, entry := range we {
-		if entry.Id == mu.Id {
+		if entry.Id == newWe.Id {
 			http.Error(w, "User is already whitelisted", http.StatusOK)
 			return
 		}
 	}
 
-	we = append(we, mu)
+	we = append(we, newWe)
 	file, _ = json.MarshalIndent(we, "", " ")
 	err = ioutil.WriteFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", file, 0644)
 	if err != nil {
