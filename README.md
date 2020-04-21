@@ -14,7 +14,11 @@ This service can be used to whitelist user on a Minecraft-server via an Rest-API
 ### **GET** `localhost:3000/members`  
   _Lists all whitelisted members of the server._
 ### **POST** `localhost:3000/members`  
-  _Adds a new member to the whitelist of the server_.
+  _Adds a new member to the whitelist of the server_.  
+  **Parameters:**  
+  | Name | Type | Details |
+|------|------------------------|--------------------------------------------------------------------------|
+| username | request-body-parameter | The 'user' is the user that will be added to the whitelist of the server. The request should look like this:<br>```{"username":"foo"}```|
 ###  **DELETE** `localhost:3000/members/<identifier>`  
   _Deletes the given name or uuid from the whitelist of the server._  
   **Parameters:**
