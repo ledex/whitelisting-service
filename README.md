@@ -25,3 +25,8 @@ This service can be used to whitelist user on a Minecraft-server via an Rest-API
   | Name | Type | Details |
   |------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
   | identifier | path-param | The 'identifier' is used to identify the member that should be removed from the whitelist. It can either be the current username or the UUID of the user (recommended). |
+  
+## Todos
+- [ ] Return errors as Jsons
+- [ ] Unify id and uuid
+- [ ] Add cli-parameters for port and whitelist-file
