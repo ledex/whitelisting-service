@@ -12,13 +12,45 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"os"
 )
 
 func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "Not implemented yet", http.StatusNotImplemented)
+	if !auth(w,r){
+		return
+	}
+
+	params := mux.Vars(r)
+	id := params["username"]
+	idAsUuid, _ := uuid.Parse(id)
+
+	file, err := ioutil.ReadFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json")
+	if err != nil {
+		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
+		return
+	}
+
+	var we []WhitelistEntry
+	err = json.NewDecoder(bytes.NewReader(file)).Decode(&we)
+
+	for index, entry := range(we){
+		if entry.Id == idAsUuid || entry.Name == id {
+			we = removeEntry(we, index)
+			break
+		}
+	}
+
+	file, _ = json.MarshalIndent(we, "", " ")
+	err = ioutil.WriteFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", file, 0644)
+	if err != nil {
+		http.Error(w, "Could note write back file. Check permissions", http.StatusInternalServerError)
+		return
+	}
+
+	http.Error(w, "User with name/id " + id + "has been removed from the whitelist", http.StatusOK)
 }
 
 func GetMembers(w http.ResponseWriter, r *http.Request){
@@ -129,4 +161,9 @@ func auth(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	return true
+}
+
+func removeEntry(s []WhitelistEntry, i int) []WhitelistEntry {
+	s[len(s)-1], s[i] = s[i], s[len(s)-1]
+	return s[:len(s)-1]
 }
