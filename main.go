@@ -19,13 +19,13 @@ import (
 	//
 	//    sw "github.com/myname/myrepo/go"
 	//
-	sw "github.com/ledex/whitelisting-service/go"
+	ws "github.com/ledex/whitelisting-service/go"
 )
 
 func main() {
 	log.Printf("Server started")
 
-	router := sw.NewRouter()
+	router := ws.NewRouter()
 
 	log.Fatal(http.ListenAndServe(":3000", router))
 }
