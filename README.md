@@ -30,3 +30,4 @@ This service can be used to whitelist user on a Minecraft-server via an Rest-API
 - [ ] Return errors as Jsons
 - [ ] Unify id and uuid
 - [ ] Add cli-parameters for port and whitelist-file
+- [ ] Add some common-practises
