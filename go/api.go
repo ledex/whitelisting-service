@@ -28,7 +28,7 @@ func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
 	idAsUuid, _ := uuid.Parse(id)
 
 	var we []WhitelistEntry
-	err := readFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", we)
+	err := readFile("test.json", we)
 	if err != nil {
 		http.Error(w, "Whitelist-file cannot be read. Check permissions", http.StatusInternalServerError)
 		return
@@ -41,7 +41,7 @@ func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = writeFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", we)
+	err = writeFile("test.json", we)
 	if err != nil {
 		http.Error(w, "Whitelist-file cannot be written back. Check permissions", http.StatusInternalServerError)
 		return
@@ -55,7 +55,7 @@ func GetMembers(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	file, err := ioutil.ReadFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json")
+	file, err := ioutil.ReadFile("test.json")
 	if err != nil {
 		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
 		return
@@ -117,7 +117,7 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var we []WhitelistEntry
-	err = readFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", we)
+	err = readFile("test.json", we)
 	if err != nil {
 		http.Error(w, "Whitelist-file cannot be read. Check permissions", http.StatusInternalServerError)
 		return
@@ -132,7 +132,7 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 
 	we = append(we, newWe)
 
-	err = writeFile("/home/minecraft/multicraft/servers/stamm-sugambrer/whitelist.json", we)
+	err = writeFile("test.json", we)
 	if err != nil {
 		http.Error(w, "Whitelist-file cannot be written back. Check permissions", http.StatusInternalServerError)
 		return
