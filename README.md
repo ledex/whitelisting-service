@@ -34,7 +34,7 @@ This service can be used to whitelist user on a Minecraft-server via an Rest-API
 * **E-1**: Unknown error -> Check details
   
 ## Todos
-- [ ] Return errors as Jsons
-- [ ] Unify id and uuid
+- [x] Return errors as Jsons
+- [x] Unify id and uuid
 - [ ] Add cli-parameters for port and whitelist-file
 - [ ] Add some common-practises
