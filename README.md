@@ -25,6 +25,13 @@ This service can be used to whitelist user on a Minecraft-server via an Rest-API
   | Name | Type | Details |
   |------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
   | identifier | path-param | The 'identifier' is used to identify the member that should be removed from the whitelist. It can either be the current username or the UUID of the user (recommended). |
+
+## Common return identifier
+* **I001**: User is already whitelisted
+* **I002**: User has been removed from the whitelist
+* **E001**: Error writing/reading the whitelist
+* **E002**: Username is invalid
+* **E-1**: Unknown error -> Check details
   
 ## Todos
 - [ ] Return errors as Jsons

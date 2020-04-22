@@ -6,13 +6,13 @@ import (
 	"io/ioutil"
 )
 
-func readFile(f string, targ interface{}) error{
+func readWhitelist(f string, targ *[]WhitelistEntry) error{
 	file, err := ioutil.ReadFile(f)
 	if err != nil {
 		return err
 	}
 
-	err = json.NewDecoder(bytes.NewReader(file)).Decode(&targ)
+	err = json.NewDecoder(bytes.NewReader(file)).Decode(targ)
 	if err != nil {
 		return err
 	}
@@ -20,7 +20,7 @@ func readFile(f string, targ interface{}) error{
 	return nil
 }
 
-func writeFile(f string, payl interface{}) error{
+func writeWhitelist(f string, payl *[]WhitelistEntry) error{
 	file, _ := json.MarshalIndent(payl, "", " ")
 	err := ioutil.WriteFile(f, file, 0644)
 	if err != nil {

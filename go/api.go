@@ -15,7 +15,6 @@ import (
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
@@ -28,9 +27,9 @@ func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
 	idAsUuid, _ := uuid.Parse(id)
 
 	var we []WhitelistEntry
-	err := readFile("test.json", we)
+	err := readWhitelist("test.json", &we)
 	if err != nil {
-		http.Error(w, "Whitelist-file cannot be read. Check permissions", http.StatusInternalServerError)
+		writeLogToWriter(w, Error, "E001", "Could not read whitelist. Check permissions.")
 		return
 	}
 
@@ -41,13 +40,13 @@ func DeleteMembersId(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = writeFile("test.json", we)
+	err = writeWhitelist("test.json", &we)
 	if err != nil {
-		http.Error(w, "Whitelist-file cannot be written back. Check permissions", http.StatusInternalServerError)
+		writeLogToWriter(w, Error, "E001", "Could not write back whitelist. Check permissions.")
 		return
 	}
 
-	http.Error(w, "User with name/id " + id + "has been removed from the whitelist", http.StatusOK)
+	writeLogToWriter(w, Info, "I002", "User has been removed from the whitelist")
 }
 
 func GetMembers(w http.ResponseWriter, r *http.Request){
@@ -57,7 +56,7 @@ func GetMembers(w http.ResponseWriter, r *http.Request){
 
 	file, err := ioutil.ReadFile("test.json")
 	if err != nil {
-		http.Error(w, "Could not open whitelist. Check permissions.", http.StatusInternalServerError)
+		writeLogToWriter(w, Error, "E001", "Could not read whitelist. Check permissions.")
 		return
 	}
 
@@ -88,7 +87,7 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 	res, err := client.Do(req)
 
 	if err != nil || res.StatusCode !=http.StatusOK {
-		http.Error(w, "Could not find this username in mojang", http.StatusBadRequest)
+		writeLogToWriter(w, Error, "E002", "Username is invalid.")
 		return
 	}
 
@@ -100,45 +99,40 @@ func PostMembers(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(bytes.NewReader(buf.Bytes())).Decode(&mu)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	muUuid, err := uuid.Parse(mu.Id)
-	if err != nil {
-		http.Error(w, "Could not parse uuid.", http.StatusInternalServerError)
+		writeLogToWriter(w, Error, "E-1", err.Error())
 		return
 	}
 
 	//Adds user to whitelist
 
 	newWe := WhitelistEntry{
-		Id:   muUuid,
+		Id:   mu.Id,
 		Name: mu.Name,
 	}
 
 	var we []WhitelistEntry
-	err = readFile("test.json", we)
+	err = readWhitelist("test.json", &we)
 	if err != nil {
-		http.Error(w, "Whitelist-file cannot be read. Check permissions", http.StatusInternalServerError)
-		return
+		writeLogToWriter(w, Error, "E001", "Could not read whitelist. Check permissions.")
+ 		return
 	}
 
 	for _, entry := range we {
 		if entry.Id == newWe.Id {
-			http.Error(w, "User is already whitelisted", http.StatusOK)
+			writeLogToWriter(w, Info, "I001", "User is already whitelisted")
 			return
 		}
 	}
 
 	we = append(we, newWe)
 
-	err = writeFile("test.json", we)
+	err = writeWhitelist("test.json", &we)
 	if err != nil {
-		http.Error(w, "Whitelist-file cannot be written back. Check permissions", http.StatusInternalServerError)
+		writeLogToWriter(w, Error, "E001", "Could not write back whitelist. Check permissions.")
 		return
 	}
 
-	result, _ := json.MarshalIndent(mu, "", " ")
+	result, _ := json.MarshalIndent(newWe, "", " ")
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(result)
@@ -151,7 +145,7 @@ func auth(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, "The url-param 'apiKey' was not specified or was specified multiple times.", http.StatusBadRequest)
 		return false
 	}
-	if apiKeys[0] != os.Getenv("globalApiKey"){
+	if apiKeys[0] != "12345" /*os.Getenv("globalApiKey")*/{
 		http.Error(w, "The given 'apiKey' is not valid.", http.StatusUnauthorized)
 		return false
 	}

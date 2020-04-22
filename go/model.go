@@ -15,7 +15,7 @@ type Body struct {
 }
 
 type MojangUser struct {
-	Id string `json:"id"`
+	Id uuid.UUID `json:"id"`
 	Name string `json:"name"`
 }
 
